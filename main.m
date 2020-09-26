@@ -4,14 +4,6 @@ f = filesep;
 %folder where the source data is stored
 path = '.\Data\*.tif';
 %output folder
-output_path = ['.\Output'];
-if exist(output_path) ~= 7
-   mkdir(output_path) 
-end
-crop_path = ['.\Cropped'];
-if exist(crop_path) ~= 7
-    mkdir(crop_path)
-end
 red_path = ['.\Red'];
 if exist(red_path) ~= 7
    mkdir(red_path) 
@@ -34,13 +26,9 @@ img_dir = dir(fullfile(path));
 
 for i = 1:length(img_dir)
     img = imread([img_dir(i).folder '\' img_dir(i).name ]);
-    [J, rect] = imcrop(img);
-    imshow(J);
-    fullFileName = [crop_path '\' img_dir(i).name];
-    imwrite(J,fullFileName); 
 
     figure, imshow(img);
-    [R,G,B] = imsplit(J);
+    [R,G,B] = imsplit(img);
     
     %RED
     figure
@@ -61,13 +49,11 @@ for i = 1:length(img_dir)
     [~,threshold] = edge(BW1,'sobel');
     fudgeFactor = 0.5;
     BWsR = edge(BW1,'sobel',threshold * fudgeFactor);
-    figure
     imshow(BWsR)
     title('Binary Gradient Mask - Red')
     se90 = strel('line',3,90);
     se0 = strel('line',3,0);
     dilR = imdilate(BWsR,[se90 se0]);
-    figure
     imshow(dilR)
     title('Dilated Gradient Mask - Red')
     eroR = imerode(dilR, [se90 se0]);
@@ -106,13 +92,11 @@ for i = 1:length(img_dir)
     [~,threshold] = edge(BW2,'sobel');
     fudgeFactor = 0.5;
     BWsG = edge(BW2,'sobel',threshold * fudgeFactor);
-    figure
     imshow(BWsG)
     title('Binary Gradient Mask - Green')
     se90 = strel('line',3,90);
     se0 = strel('line',3,0);
     dilG = imdilate(BWsG,[se90 se0]);
-    figure
     imshow(dilG)
     title('Dilated Gradient Mask - Green')
     eroG = imerode(dilG, [se90 se0]);
@@ -149,22 +133,17 @@ for i = 1:length(img_dir)
     [~,threshold] = edge(BW3,'sobel');
     fudgeFactor = 0.5;
     BWsB = edge(BW3,'sobel',threshold * fudgeFactor);
-    figure
     imshow(BWsB)
     title('Binary Gradient Mask - Blue')
     se90 = strel('line',3,90);
     se0 = strel('line',3,0);
     dilB = imdilate(BWsB,[se90 se0]);
-    figure
     imshow(dilB)
     title('Dilated Gradient Mask - Blue')
     eroB = imerode(dilB, [se90 se0]);
     figure
     imshow(eroB)
-    title('Dilated and Eroded Gradient Mask - Blue')
-    outputName = [output_path '\' img_dir(i).name];
-    print(gcf,'-dtiff', outputName)
-   
+    title('Dilated and Eroded Gradient Mask - Blue')   
 end
 
 toc
